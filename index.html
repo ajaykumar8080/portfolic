@@ -320,15 +320,13 @@
 
         .project-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 15px 30px var(--shadow-color);
+            box-shadow: 0 15px 15px var(--shadow-color);
         }
-
         .project-image-wrapper {
             position: relative;
             width: 100%;
             padding-top: 100%; /* Aspect ratio 4:3 */
         }
-
         .project-card img {
             position: absolute;
             top: 0;
@@ -338,12 +336,10 @@
             object-fit: cover;
             transition: transform 0.4s ease, filter 0.4s ease;
         }
-
         .project-card:hover img {
             transform: scale(1.1);
             filter: blur(4px);
         }
-
         .project-overlay {
             position: absolute;
             top: 0;
@@ -1299,6 +1295,7 @@
     </script>
 </body>
 </html>
+
 
 
 
