@@ -320,13 +320,15 @@
 
         .project-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 15px 15px var(--shadow-color);
+            box-shadow: 0 15px 30px var(--shadow-color);
         }
+        
         .project-image-wrapper {
             position: relative;
             width: 100%;
             padding-top: 100%; /* Aspect ratio 4:3 */
         }
+        
         .project-card img {
             position: absolute;
             top: 0;
@@ -336,10 +338,12 @@
             object-fit: cover;
             transition: transform 0.4s ease, filter 0.4s ease;
         }
+        
         .project-card:hover img {
             transform: scale(1.1);
             filter: blur(4px);
         }
+        
         .project-overlay {
             position: absolute;
             top: 0;
@@ -680,7 +684,7 @@
                     <img src="2.jpg" alt="Coding Desk">
                 </div>
                 <div class="about-text" data-animation="fade-in-left">
-                    <h2>About <br>m <i class="fas fa-arrow-down"></i></h2>
+                    <h2>About <br>me <i class="fas fa-arrow-down"></i></h2>
                     <p>I'm G Ajay Kumar, an AIML Engineering student at Srinivas University, Mangalore. My passion lies in crafting elegant full-stack web solutions while diving deep into the world of Artificial Intelligence and Machine Learning. I'm driven by the challenge of creating intelligent, data-driven applications that solve real-world problems. My academic journey is equipping me with the skills to merge robust web architectures with cutting-edge AI techniques.</p>
                     <div class="stats">
                         <div>
@@ -1295,19 +1299,5 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
