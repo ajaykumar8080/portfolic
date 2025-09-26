@@ -1049,267 +1049,211 @@
             <i class="fas fa-heart heart five"></i>
         </div>
     </div>
+<script type="text/javascript" src="https://cdn.emailjs.com/sdk/3.2/email.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
 
+    // --- Initialize EmailJS ---
+    emailjs.init("YOUR_PUBLIC_KEY"); // Replace with your EmailJS public key
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- Theme Toggler ---
-            const themeToggleBtn = document.getElementById('theme-toggle-btn');
-            const body = document.body;
-            const themeIcon = themeToggleBtn ? themeToggleBtn.querySelector('i') : null;
+    // --- Theme Toggler ---
+    const themeToggleBtn = document.getElementById('theme-toggle-btn');
+    const body = document.body;
+    const themeIcon = themeToggleBtn ? themeToggleBtn.querySelector('i') : null;
 
-            function setTheme(theme) {
-                if (theme === 'light') {
-                    body.classList.add('light-theme');
-                    if (themeIcon) themeIcon.classList.replace('fa-moon', 'fa-sun');
-                    localStorage.setItem('theme', 'light');
-                } else {
-                    body.classList.remove('light-theme');
-                    if (themeIcon) themeIcon.classList.replace('fa-sun', 'fa-moon');
-                    localStorage.setItem('theme', 'dark');
+    function setTheme(theme) {
+        if (theme === 'light') {
+            body.classList.add('light-theme');
+            if (themeIcon) themeIcon.classList.replace('fa-moon', 'fa-sun');
+            localStorage.setItem('theme', 'light');
+        } else {
+            body.classList.remove('light-theme');
+            if (themeIcon) themeIcon.classList.replace('fa-sun', 'fa-moon');
+            localStorage.setItem('theme', 'dark');
+        }
+    }
+
+    const savedTheme = localStorage.getItem('theme');
+    setTheme(savedTheme || 'dark');
+
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+            setTheme(body.classList.contains('light-theme') ? 'dark' : 'light');
+        });
+    }
+
+    // --- Mobile Navigation Toggle ---
+    const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
+    const primaryNav = document.getElementById('primary-navigation');
+    const mobileNavIcon = mobileNavToggle ? mobileNavToggle.querySelector('i') : null;
+
+    if (mobileNavToggle && primaryNav && mobileNavIcon) {
+        mobileNavToggle.addEventListener('click', () => {
+            const isExpanded = primaryNav.classList.contains('active');
+            mobileNavToggle.setAttribute('aria-expanded', String(!isExpanded));
+            primaryNav.classList.toggle('active');
+            mobileNavIcon.classList.toggle('fa-bars');
+            mobileNavIcon.classList.toggle('fa-times');
+        });
+    }
+
+    // --- Smooth Scrolling & Active Link ---
+    const navLinks = document.querySelectorAll('#primary-navigation a[href^="#"], .logo[href^="#"], .footer-nav a[href^="#"]');
+    const sections = document.querySelectorAll('main section[id]');
+
+    function changeActiveLink() {
+        let index = sections.length;
+        const headerHeight = document.querySelector('header') ? document.querySelector('header').offsetHeight : 0;
+        while (--index && window.scrollY + headerHeight + 50 < sections[index].offsetTop) {}
+        navLinks.forEach(link => link.classList.remove('active-link'));
+        const activeSectionId = sections[index] ? sections[index].id : null;
+        if (activeSectionId) {
+            const activeLink = document.querySelector(`#primary-navigation a[href="#${activeSectionId}"], .logo[href="#${activeSectionId}"]`);
+            if (activeLink) activeLink.classList.add('active-link');
+        } else {
+            const heroLink = document.querySelector('.logo[href="#hero"]');
+            if(heroLink) heroLink.classList.add('active-link');
+        }
+    }
+
+    if (sections.length > 0) {
+        changeActiveLink();
+        window.addEventListener('scroll', changeActiveLink);
+    }
+
+    navLinks.forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetElement = document.querySelector(this.getAttribute('href'));
+            if (targetElement) {
+                if (primaryNav && primaryNav.classList.contains('active')) {
+                    primaryNav.classList.remove('active');
+                    if (mobileNavToggle) mobileNavToggle.setAttribute('aria-expanded', 'false');
+                    if (mobileNavIcon) { mobileNavIcon.classList.replace('fa-times', 'fa-bars'); }
                 }
+                const headerOffset = document.querySelector('header') ? document.querySelector('header').offsetHeight : 0;
+                const elementPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+                window.scrollTo({ top: elementPosition - headerOffset, behavior: 'smooth' });
+                navLinks.forEach(link => link.classList.remove('active-link'));
+                this.classList.add('active-link');
             }
+        });
+    });
 
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme) {
-                setTheme(savedTheme);
-            } else {
-                setTheme('dark'); 
-            }
+    // --- Project Filtering ---
+    const filterButtons = document.querySelectorAll('.project-filters .filter-btn');
+    const projectCards = document.querySelectorAll('.projects-grid .project-card');
+    const viewAllProjectsBtn = document.getElementById('view-all-projects-btn');
 
-            if (themeToggleBtn) {
-                themeToggleBtn.addEventListener('click', () => {
-                    if (body.classList.contains('light-theme')) {
-                        setTheme('dark');
-                    } else {
-                        setTheme('light');
-                    }
-                });
-            }
+    function filterProjects(categoryToShow) {
+        filterButtons.forEach(btn => btn.classList.remove('active'));
+        if (categoryToShow !== 'all') {
+            const activeButton = document.querySelector(`.project-filters .filter-btn[data-filter="${categoryToShow}"]`);
+            if (activeButton) activeButton.classList.add('active');
+        }
+        projectCards.forEach(card => {
+            card.style.display = (categoryToShow === 'all' || card.getAttribute('data-category') === categoryToShow) ? 'block' : 'none';
+        });
+    }
 
-            // --- Mobile Navigation Toggle ---
-            const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
-            const primaryNav = document.getElementById('primary-navigation');
-            const mobileNavIcon = mobileNavToggle ? mobileNavToggle.querySelector('i') : null;
+    filterProjects('web');
+    filterButtons.forEach(button => {
+        button.addEventListener('click', () => filterProjects(button.getAttribute('data-filter')));
+    });
+    if (viewAllProjectsBtn) {
+        viewAllProjectsBtn.addEventListener('click', e => { e.preventDefault(); filterProjects('all'); });
+    }
 
-            if (mobileNavToggle && primaryNav && mobileNavIcon) {
-                mobileNavToggle.addEventListener('click', () => {
-                    const isExpanded = primaryNav.classList.contains('active');
-                    mobileNavToggle.setAttribute('aria-expanded', String(!isExpanded));
-                    primaryNav.classList.toggle('active');
-                    if (primaryNav.classList.contains('active')) { mobileNavIcon.classList.replace('fa-bars', 'fa-times'); } 
-                    else { mobileNavIcon.classList.replace('fa-times', 'fa-bars'); }
-                });
-            }
+    // --- Service Modal ---
+    const serviceModal = document.getElementById('serviceModal');
+    const viewMoreLinks = document.querySelectorAll('.view-more-link');
+    const modalServiceName = document.getElementById('modalServiceName');
+    const modalServiceDescription = document.getElementById('modalServiceDescription');
+    const closeServiceModalBtn = serviceModal.querySelector('.modal-close-btn');
 
-            // --- Smooth Scrolling & Active Link ---
-            const navLinks = document.querySelectorAll('#primary-navigation a[href^="#"], .logo[href^="#"], .footer-nav a[href^="#"]');
-            const sections = document.querySelectorAll('main section[id]');
-            function changeActiveLink() {
-                let index = sections.length;
-                const headerHeight = document.querySelector('header') ? document.querySelector('header').offsetHeight : 0;
-                while(--index && window.scrollY + headerHeight + 50 < sections[index].offsetTop) {}
-                navLinks.forEach((link) => link.classList.remove('active-link'));
-                const activeSectionId = sections[index] ? sections[index].id : null;
-                if (activeSectionId) {
-                    const activeLink = document.querySelector(`#primary-navigation a[href="#${activeSectionId}"], .logo[href="#${activeSectionId}"]`);
-                    if (activeLink) activeLink.classList.add('active-link');
-                } else if (sections.length > 0 && window.scrollY < sections[0].offsetTop - headerHeight) {
-                     const heroLink = document.querySelector('.logo[href="#hero"]');
-                     if(heroLink) heroLink.classList.add('active-link');
-                } else if (sections.length === 0 && window.scrollY < 200) { 
-                    const heroLink = document.querySelector('.logo[href="#hero"]');
-                    if(heroLink) heroLink.classList.add('active-link');
-                }
-            }
-            if (sections.length > 0) { changeActiveLink(); window.addEventListener('scroll', changeActiveLink); }
-            navLinks.forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('href');
-                    const targetElement = document.querySelector(targetId);
-                    if (targetElement) {
-                        if (primaryNav && primaryNav.classList.contains('active')) {
-                            primaryNav.classList.remove('active');
-                            if (mobileNavToggle) mobileNavToggle.setAttribute('aria-expanded', 'false');
-                            if (mobileNavIcon) { mobileNavIcon.classList.replace('fa-times', 'fa-bars'); }
-                        }
-                        const headerOffset = document.querySelector('header') ? document.querySelector('header').offsetHeight : 0;
-                        const elementPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
-                        const offsetPosition = elementPosition - headerOffset;
-                        window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-                        navLinks.forEach(link => link.classList.remove('active-link'));
-                        this.classList.add('active-link');
-                    }
-                });
+    viewMoreLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            modalServiceName.textContent = this.getAttribute('data-title');
+            const descriptionPoints = this.getAttribute('data-description').split('. ');
+            let htmlDescription = '<ul>';
+            descriptionPoints.forEach(point => {
+                if (point.trim() !== '') htmlDescription += `<li><i class="fas fa-check-circle"></i> ${point.trim()}</li>`;
             });
+            htmlDescription += '</ul>';
+            modalServiceDescription.innerHTML = htmlDescription;
+            serviceModal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        });
+    });
+    if (closeServiceModalBtn) {
+        closeServiceModalBtn.onclick = () => { serviceModal.style.display = 'none'; document.body.style.overflow = 'auto'; };
+    }
 
-            // --- Project Filtering ---
-            const filterButtons = document.querySelectorAll('.project-filters .filter-btn');
-            const projectCards = document.querySelectorAll('.projects-grid .project-card');
-            const viewAllProjectsBtn = document.getElementById('view-all-projects-btn');
+    // --- Certificate Lightbox ---
+    const certModal = document.getElementById("certLightbox");
+    const certImages = document.querySelectorAll('.cert-img');
+    const modalImg = document.getElementById("certLightboxImg");
+    const certCloseBtn = document.querySelector(".lightbox-close");
 
-            function filterProjects(categoryToShow) {
-                // De-activate all category filter buttons
-                filterButtons.forEach(btn => {
-                    btn.classList.remove('active');
-                });
+    certImages.forEach(img => {
+        img.onclick = () => { certModal.style.display = "block"; modalImg.src = img.src; };
+    });
+    if (certCloseBtn) certCloseBtn.onclick = () => { certModal.style.display = "none"; };
 
-                // If a specific category is chosen (not 'all'), activate its button
-                if (categoryToShow !== 'all') {
-                    const activeButton = document.querySelector(`.project-filters .filter-btn[data-filter="${categoryToShow}"]`);
-                    if (activeButton) {
-                        activeButton.classList.add('active');
-                    }
-                }
+    // --- Contact Form & Thank You Modal (EmailJS Integration) ---
+    const contactFormNew = document.querySelector('.contact-form-new'); 
+    const thankYouModal = document.getElementById('thankYouModal');
 
-                // Show or hide project cards based on the selected category
-                projectCards.forEach(card => {
-                    const cardCategory = card.getAttribute('data-category');
-                    if (categoryToShow === 'all' || cardCategory === categoryToShow) {
-                        card.style.display = 'block';
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            }
+    if (contactFormNew) {
+        contactFormNew.addEventListener('submit', function(event) {
+            event.preventDefault();
 
-            // Set "Web Development" as the default filter on page load
-            filterProjects('web');
+            const formData = {
+                from_name: this.querySelector('input[name="name"]').value,
+                from_email: this.querySelector('input[name="email"]').value,
+                message: this.querySelector('textarea[name="message"]').value
+            };
 
-            // Add click event listeners to category filter buttons
-            filterButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    filterProjects(button.getAttribute('data-filter'));
-                });
-            });
-
-            // Add click event listener to the "View All Projects" button
-            if (viewAllProjectsBtn) {
-                viewAllProjectsBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    filterProjects('all');
-                });
-            }
-            
-            // --- Service Modal ---
-            const serviceModal = document.getElementById('serviceModal');
-            const viewMoreLinks = document.querySelectorAll('.view-more-link');
-            const modalServiceName = document.getElementById('modalServiceName');
-            const modalServiceDescription = document.getElementById('modalServiceDescription');
-            const closeServiceModalBtn = serviceModal.querySelector('.modal-close-btn');
-            viewMoreLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    modalServiceName.textContent = this.getAttribute('data-title');
-                    const descriptionText = this.getAttribute('data-description');
-                    const descriptionPoints = descriptionText.split('. ');
-                    let htmlDescription = '<ul>';
-                    descriptionPoints.forEach(point => {
-                        if (point.trim() !== '') {
-                            let formattedPoint = point.trim();
-                            if (!formattedPoint.endsWith('.') && descriptionPoints.indexOf(point) < descriptionPoints.length -1 ) formattedPoint += '.';
-                            else if (formattedPoint.endsWith('..')) formattedPoint = formattedPoint.slice(0, -1);
-                            htmlDescription += `<li><i class="fas fa-check-circle"></i> ${formattedPoint}</li>`;
-                        }
-                    });
-                    htmlDescription += '</ul>';
-                    modalServiceDescription.innerHTML = htmlDescription;
-                    serviceModal.style.display = 'block';
-                    document.body.style.overflow = 'hidden';
-                });
-            });
-            if (closeServiceModalBtn) { closeServiceModalBtn.onclick = function() { serviceModal.style.display = 'none'; document.body.style.overflow = 'auto'; }}
-            
-            // --- Certificate Lightbox ---
-            const certModal = document.getElementById("certLightbox");
-            const certImages = document.querySelectorAll('.cert-img');
-            const modalImg = document.getElementById("certLightboxImg");
-            const certCloseBtn = document.querySelector(".lightbox-close");
-
-            certImages.forEach(img => {
-                img.onclick = function(){
-                    certModal.style.display = "block";
-                    modalImg.src = this.src;
-                }
-            });
-
-            if (certCloseBtn) {
-                certCloseBtn.onclick = function() { 
-                    certModal.style.display = "none";
-                }
-            }
-
-            // --- Contact Form & Thank You Modal ---
-            const contactFormNew = document.querySelector('.contact-form-new'); 
-            const thankYouModal = document.getElementById('thankYouModal');
-
-            if (contactFormNew) {
-                contactFormNew.addEventListener('submit', function(event) {
-                    event.preventDefault();
-                    
-                    // Show Thank You Modal
+            emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', formData)
+                .then(() => {
                     thankYouModal.style.display = 'flex';
                     thankYouModal.classList.add('visible');
-                    
-                    // Reset form
                     this.reset();
-
-                    // Hide modal after a few seconds
                     setTimeout(() => {
                         thankYouModal.classList.remove('visible');
-                        setTimeout(() => {
-                            thankYouModal.style.display = 'none';
-                        }, 500);
-                    }, 4000); 
+                        setTimeout(() => { thankYouModal.style.display = 'none'; }, 500);
+                    }, 4000);
+                }, (error) => {
+                    alert('Oops! Something went wrong. Please try again later.');
+                    console.error('EmailJS Error:', error);
                 });
-            }
-
-            if(thankYouModal) {
-                thankYouModal.addEventListener('click', () => {
-                    thankYouModal.classList.remove('visible');
-                    setTimeout(() => {
-                        thankYouModal.style.display = 'none';
-                    }, 500);
-                });
-            }
-
-            // --- General Window Click Listeners ---
-            window.onclick = function(event) { 
-                if (event.target == serviceModal) { serviceModal.style.display = 'none'; document.body.style.overflow = 'auto'; }
-                if (event.target == certModal) { certModal.style.display = 'none'; }
-            }
-
-            // --- On-Scroll Animations ---
-            const animatedElements = document.querySelectorAll('[data-animation]');
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('in-view');
-                    }
-                });
-            }, {
-                threshold: 0.1 
-            });
-
-            animatedElements.forEach(element => {
-                observer.observe(element);
-            });
         });
-    </script>
+    }
+
+    if(thankYouModal) {
+        thankYouModal.addEventListener('click', () => {
+            thankYouModal.classList.remove('visible');
+            setTimeout(() => { thankYouModal.style.display = 'none'; }, 500);
+        });
+    }
+
+    // --- Window Click Listeners ---
+    window.onclick = function(event) { 
+        if (event.target == serviceModal) { serviceModal.style.display = 'none'; document.body.style.overflow = 'auto'; }
+        if (event.target == certModal) { certModal.style.display = 'none'; }
+    }
+
+    // --- On-Scroll Animations ---
+    const animatedElements = document.querySelectorAll('[data-animation]');
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('in-view'); });
+    }, { threshold: 0.1 });
+    animatedElements.forEach(element => observer.observe(element));
+
+});
+</script>
+
+
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
